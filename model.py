@@ -12,12 +12,7 @@ import pandas as pd
 
 df = pd.read_json('IIT5.json')
 
-#df.head()
-
 dft = df.transpose()
-
-#dft.head()
-
 dft['Computer Science and Engineering'].apply(pd.Series)
 
 df2 = pd.json_normalize(df['IIT-Jammu'])
@@ -25,10 +20,6 @@ df2 = pd.json_normalize(df['IIT-Jammu'])
 df2['Uni'] = 'IIT-Jammu'
 
 df2 = df2.set_index('Uni')
-
-#df2.head()
-
-#dft.head()
 
 dft.loc['IIT-Dharwad']['Computer Science and Engineering']['Cutoffs']['2021']['Round-1']['GEN Gender-Neutral']
 
@@ -45,16 +36,10 @@ for i in df.columns:
           km.append([a1,a2])
   #print()
 
-# Commented out IPython magic to ensure Python compatibility.
 import matplotlib.pyplot as plt
 # %matplotlib inline
 
 km2 = np.array(km).astype(np.float)
-#km2
-
-#plt.scatter(km2[:,0], km2[:,1])
-#plt.xlim([0,5000])
-#plt.ylim([0,5000])
 
 from sklearn.cluster import KMeans
 
@@ -63,13 +48,6 @@ kmeans = KMeans(n_clusters = 5)
 kmeans.fit(km2)
 
 print(kmeans.predict([[1,1]])[0])
-#fig, (ax1,ax2) = plt.subplots(1,2,sharey=True,figsize=(10,6))
-#plt.scatter(km2[:,0],km2[:,1],c=kmeans.labels_,cmap='rainbow',s=3)
-
-#ax2.scatter(km2[:,0],km2[:,1],c=kmeans.labels_,cmap='rainbow')
-
-#plt.xlim([0,15000])
-#plt.ylim([0,15000])
 
 import pickle
 

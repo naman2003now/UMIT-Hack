@@ -6,6 +6,11 @@ from sklearn.decomposition import TruncatedSVD
 import pandas as pd
 import numpy as np
 
+ranks = []
+app = Flask(__name__)
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
+
 class Model:
   i = '0'
   lrank = 1
@@ -26,10 +31,10 @@ class Model:
     product_names = list(self.cmat.index)
     product_ID = product_names.index(str(self.i))
     correlation_product_ID = correlation_matrix[product_ID]
-    Recommend = list(self.cmat.index[correlation_product_ID > 0.70])
+    Recommend = list(self.cmat.index[correlation_product_ID > 0.95])
     fl = []
     for i in range(len(correlation_product_ID)):
-      if(correlation_product_ID[i] > 0.50):
+      if(correlation_product_ID[i] > 0.95):
         fl.append([correlation_product_ID[i], self.cmat.index[i]])
     fl.sort(reverse=True)
     flf = []
@@ -43,21 +48,32 @@ class Model:
           self.sec.append([(j[0].split())[0], j[0][len((j[0].split())[0]):], ranks[j[0]][0], ranks[j[0]][1]])
         elif (j[1] == 2 and j[0] not in self.sec and (ranks[j[0]][1] > self.lrank)):
           self.sec.append([(j[0].split())[0], j[0][len((j[0].split())[0]):], ranks[j[0]][0], ranks[j[0]][1]])
-    
-    return self.fir + self.sec
+
+    print(self.fir, self.sec, sep = '\n\n')
+    final = []
+    for i in self.fir:
+        final.append(i)
+    for i in self.sec:
+        final.append(i)
+    finalstr = str()
+    for i in final:
+        finalstr += str(i) + '\n'
+    return jsonify(final)
 
 @app.route('/')
 def hello():
   return 'hi'
 
-@app.route('/predict', methods=['GET']) #or POST u see that
+@app.route('/predict', methods=['POST']) #or POST u see that
 @cross_origin()
 def predict():
   #take all these as input from args
-  lrank = 5000
-  hrank = 7000
-  stream1 = 'Computer Science'
-  stream2 = 'Electronics'
+  global ranks
+  req_dat = request.get_json()
+  lrank = req_dat['lrank']#5000
+  hrank = req_dat['hrank']#7000
+  stream1 = req_dat['stream1']#'Computer Science'
+  stream2 = req_dat['stream2']#'Electronics'
   
   f = open('essentials.pckl', 'rb')
   f1 = pickle.load(f)

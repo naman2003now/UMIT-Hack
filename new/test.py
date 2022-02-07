@@ -73,12 +73,12 @@ class Model:
 
     for i in tf:
       j = i[1]
-      self.fir.append([(j.split())[0], j[len((j[0].split())[0]):], ranks[j][0], ranks[j][1]])
+      self.fir.append([(j.split())[0], j[len((j.split())[0]):], ranks[j][0], ranks[j][1]])
 
     
     for i in ts:
       j = i[1]
-      self.sec.append([(j.split())[0], j[len((j[0].split())[0]):], ranks[j][0], ranks[j][1]])
+      self.sec.append([(j.split())[0], j[len((j.split())[0]):], ranks[j][0], ranks[j][1]])
 
     print(self.fir, self.sec, sep = '\n\n\n')
     self.final = []

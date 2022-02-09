@@ -22,13 +22,11 @@ class Model:
   cmat = []
   fir = []
   sec = []
-  m2 = []
   final = []
 
   def predict(self):
     self.sec = []
     self.fir = []
-    self.m2 = []
     flf = []
     SVD = TruncatedSVD(n_components=10)
     decomposed_matrix = SVD.fit_transform(self.cmat)
@@ -48,75 +46,75 @@ class Model:
       if (fl[i][0] > 0.95):
         flf.append(fl[i])
 
-    clgdf, clgds, m1 = {}, {}, {}
+    clgdf, clgds = {}, {}
     for i in flf:
       for j in self.cmat.loc[i[1]].items():
-        if ((j[1] == 5) and (j[0] not in self.fir) and (ranks[j[0]][1] >= self.lrank)):
+        if ((j[1] == 5) and (j[0] not in self.fir) and (ranks[j[0]][1] >= self.lrank) and (self.hrank >= ranks[j[0]][0])):
           if(j[0] in clgdf):
             clgdf[j[0]] += 1
           else:
-            clgdf[j[0]] = 1        
-        elif ((j[1] == 1) and (j[0] not in self.sec) and (ranks[j[0]][1] >= self.lrank)):
+            clgdf[j[0]] = 1
+
+          
+        elif ((j[1] == 2) and (j[0] not in self.sec) and (ranks[j[0]][1] >= self.lrank) and (self.hrank >= ranks[j[0]][0])):
           if(j[0] in clgds):
             clgds[j[0]] += 1
           else:
-            clgds[j[0]] = 1            
-        elif ((j[1] == 2 or j[1] == 4) and (ranks[j[0]][1] >= self.lrank)):
-          if(j[0] in m1):
-            m1[j[0]] += 1
-          else:
-            m1[j[0]] = 1
-    tf, ts, mid = [], [], []
+              clgds[j[0]] = 1            
+
+    tf, ts = [], []
     for k in clgdf:
       tf.append([clgdf[k], k])
-    for k in m1:
-      mid.append([m1[k], k])
     for k in clgds:
       ts.append([clgds[k], k])
+
     tf.sort(reverse=True)
-    ts.sort(reverse=True)    
+    ts.sort(reverse=True)
+
     for i in tf:
       j = i[1]
       self.fir.append([(j.split())[0], j[len((j.split())[0]):], ranks[j][0], ranks[j][1]])
-    for i in mid:
-      j = i[1]
-      self.m2.append([(j.split())[0], j[len((j.split())[0]):], ranks[j][0], ranks[j][1]])
+
+    
     for i in ts:
       j = i[1]
       self.sec.append([(j.split())[0], j[len((j.split())[0]):], ranks[j][0], ranks[j][1]])
-    print(self.fir, self.m2, self.sec, sep = '\n\n\n')
+
+    print(self.fir, self.sec, sep = '\n\n\n')
     self.final = []
-    for i in self.fir[:10]:
+    for i in self.fir:
         self.final.append(i)
-    for i in self.m2[:10]:
-        self.final.append(i)
-    for i in self.sec[:10]:
+    for i in self.sec:
         self.final.append(i)
     rfinal = []
     [rfinal.append(x) for x in self.final if x not in rfinal]
+
+    finalstr = str()
+    for i in self.final:
+        finalstr += str(i) + '\n'
     return jsonify(rfinal)
 
 @app.route('/')
 def hello():
   return 'hi'
 
-@app.route('/predict', methods=['GET', 'POST']) #or POST u see that
+@app.route('/predict', methods=['GET']) #or POST u see that
 @cross_origin()
 def predict():
   #take all these as input from args
   global ranks
 
-  req_dat = request.get_json()
-  lrank = req_dat['lrank']#5000
-  hrank = req_dat['hrank']#7000
-  stream1 = req_dat['stream1']#'Computer Science'
-  stream2 = req_dat['stream2']#'Electronics'
-  '''
+  #session.clear()
+  #req_dat = request.get_json()
+  #lrank = req_dat['lrank']#5000
+  #hrank = req_dat['hrank']#7000
+  #stream1 = req_dat['stream1']#'Computer Science'
+  #stream2 = req_dat['stream2']#'Electronics'
   lrank = int(request.args.get("lrank"))
   hrank = int(request.args.get("hrank"))
   stream1 = request.args.get("p1")
   stream2 = request.args.get("p2")
-  '''
+
   f = open('essentials.pckl', 'rb')
   f1 = pickle.load(f)
   f.close()
